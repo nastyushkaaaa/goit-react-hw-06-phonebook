@@ -1,13 +1,16 @@
-import { useState } from 'react';
-import useLocalStorage from '../hooks/useLocalStorage';
-import { Form } from './Form';
-import { ContactList } from './ContactList';
-import { Filter } from './Filter';
 import { nanoid } from 'nanoid';
+import { Form } from './Form';
+import { Filter } from './Filter';
+import { ContactList } from './ContactList';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 export function App() {
-  const [contacts, setContacts] = useLocalStorage('contacts', []);
-  const [filter, setFilter] = useState('');
+  const { contacts, filter, addContact, deleteContact, setFilter } =
+    useLocalStorage();
+
+  function handleDeleteContact(id) {
+    deleteContact(id);
+  }
 
   function formSubmitHandler({ name, number }) {
     const contact = {
@@ -19,7 +22,7 @@ export function App() {
     if (
       !contacts.some(existingContact => existingContact.name === contact.name)
     ) {
-      setContacts(prevState => [contact, ...prevState]);
+      addContact(contact);
     } else {
       alert(contact.name + ' is already in contacts!');
     }
@@ -29,12 +32,6 @@ export function App() {
     setFilter(e.currentTarget.value);
   }
 
-  function deleteContact(contactId) {
-    setContacts(prevState =>
-      prevState.filter(contact => contact.id !== contactId)
-    );
-  }
-
   const normalizedFilter = filter.toLocaleLowerCase();
   const visibleContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(normalizedFilter)
@@ -42,12 +39,12 @@ export function App() {
 
   return (
     <div>
-      <Form onSubmit={formSubmitHandler}></Form>
-      <Filter value={filter} onChange={changeFilter}></Filter>
+      <Form onSubmit={formSubmitHandler} />
+      <Filter value={filter} onChange={changeFilter} />
       <ContactList
         list={visibleContacts}
-        onDeleteContact={deleteContact}
-      ></ContactList>
+        onDeleteContact={handleDeleteContact}
+      />
     </div>
   );
 }

@@ -1,13 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  addToContacts,
+  deleteContact,
+  filterContacts,
+} from '../redux/contactSlice';
 
-export default function useLocalStorage(key, defaultValue) {
-  const [state, setState] = useState(() => {
-    return JSON.parse(window.localStorage.getItem(key)) ?? defaultValue;
-  });
+export default function useLocalStorage() {
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts.items);
+  const filter = useSelector(state => state.contacts.filter);
 
-  useEffect(() => {
-    window.localStorage.setItem(key, JSON.stringify(state));
-  }, [key, state]);
+  const handleAddContact = newContact => dispatch(addToContacts(newContact));
+  const handleDeleteContact = id => dispatch(deleteContact(id));
+  const handleSetFilter = value => dispatch(filterContacts(value));
 
-  return [state, setState];
+  return {
+    contacts,
+    filter,
+    addContact: handleAddContact,
+    deleteContact: handleDeleteContact,
+    setFilter: handleSetFilter,
+  };
 }
