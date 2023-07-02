@@ -1,6 +1,17 @@
-import PropTypes from 'prop-types';
+import useLocalStorage from 'hooks/useLocalStorage';
 
-export const ContactList = ({ list, onDeleteContact }) => {
+export const ContactList = () => {
+  const { contacts, filter, deleteContact } = useLocalStorage();
+
+  const normalizedFilter = filter ? filter.toLowerCase() : '';
+
+  const visibleContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(normalizedFilter)
+  );
+
+  function handleDeleteContact(id) {
+    deleteContact(id);
+  }
   return (
     <ul
       style={{
@@ -20,7 +31,7 @@ export const ContactList = ({ list, onDeleteContact }) => {
       >
         Contacts:
       </h2>
-      {list.map(({ id, name, number }) => (
+      {visibleContacts.map(({ id, name, number }) => (
         <li
           key={id}
           style={{
@@ -58,7 +69,7 @@ export const ContactList = ({ list, onDeleteContact }) => {
               marginLeft: '15px',
             }}
             type="button"
-            onClick={() => onDeleteContact(id)}
+            onClick={() => handleDeleteContact(id)}
           >
             Delete
           </button>
@@ -66,14 +77,4 @@ export const ContactList = ({ list, onDeleteContact }) => {
       ))}
     </ul>
   );
-};
-
-ContactList.propTypes = {
-  list: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ),
 };

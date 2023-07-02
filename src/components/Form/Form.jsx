@@ -1,9 +1,28 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { nanoid } from 'nanoid';
+import useLocalStorage from 'hooks/useLocalStorage';
 
-export function Form({ onSubmit }) {
+export function Form() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
+  const { contacts, addContact } = useLocalStorage();
+
+  function formSubmitHandler({ name, number }) {
+    const contact = {
+      id: nanoid(),
+      name: name,
+      number: number,
+    };
+
+    if (
+      !contacts.some(existingContact => existingContact.name === contact.name)
+    ) {
+      addContact(contact);
+    } else {
+      alert(contact.name + ' is already in contacts!');
+    }
+  }
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -22,7 +41,7 @@ export function Form({ onSubmit }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    onSubmit({ name: name, number: number });
+    formSubmitHandler({ name: name, number: number });
     reset();
   }
 
@@ -114,7 +133,3 @@ export function Form({ onSubmit }) {
     </form>
   );
 }
-
-Form.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
